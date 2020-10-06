@@ -3,7 +3,6 @@ package com.mx.org.concentradora.controller;
 import java.util.Date;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -18,7 +17,6 @@ import com.mx.org.concentradora.client.TransaccionOutFeignClient;
 import com.mx.org.concentradora.model.ResponseModel;
 import com.mx.org.concentradora.model.TransaccionIn;
 import com.mx.org.concentradora.model.TransaccionOut;
-import com.mx.org.concentradora.service.TaeService;
 import com.mx.org.concentradora.util.TransaccionUtil;
 
 @RestController
@@ -26,17 +24,13 @@ import com.mx.org.concentradora.util.TransaccionUtil;
 public class ConcentradoraController {
 
 	@Autowired
-	@Qualifier("taeService")
-	private TaeService taeService;
-
-	@Autowired
 	private TransaccionInFeignClient transaccionInFeignClient;
 
 	@Autowired
 	private TransaccionOutFeignClient transaccionOutFeignClient;
 
-//	@Autowired
-//	private BitacoraFeignClient bitacoraFeignClient;
+	// @Autowired
+	// private BitacoraFeignClient bitacoraFeignClient;
 
 	@PostMapping("/transacciones")
 	public ResponseEntity<ResponseModel> solicitudSaldo(@RequestBody TransaccionIn transaccionIn) {
@@ -77,13 +71,6 @@ public class ConcentradoraController {
 		try {
 			response = transaccionOutFeignClient.findByFolio(folio);
 			if (response != null) {
-				String[] respuestaSocket = taeService.taeTelcel(response);
-				response.setEstatus(3);
-				response.setRespProv(respuestaSocket[0]);
-				response.setFolioProv(respuestaSocket[1]);
-				response.setCanalVenta(respuestaSocket[2]);
-				response.setFechaResp(new Date());
-//				transaccionOutFeignClient.update(response, response.getId());
 				codigo = HttpStatus.OK;
 			} else {
 				codigo = HttpStatus.NOT_FOUND;

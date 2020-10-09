@@ -12,8 +12,10 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.mx.org.concentradora.client.BitacoraFeignClient;
 import com.mx.org.concentradora.client.TransaccionInFeignClient;
 import com.mx.org.concentradora.client.TransaccionOutFeignClient;
+import com.mx.org.concentradora.model.Bitacora;
 import com.mx.org.concentradora.model.ResponseModel;
 import com.mx.org.concentradora.model.TransaccionIn;
 import com.mx.org.concentradora.model.TransaccionOut;
@@ -23,22 +25,28 @@ import com.mx.org.concentradora.util.TransaccionUtil;
 @RequestMapping(value = "/v1")
 public class ConcentradoraController {
 
+	private Integer TRANSACCION_NUEVA = 1;
+	
+	private Integer BITACORA_TRANSACCION_NUEVA = 1;
+	private Integer BITACORA_TRANSACCION_ERRONEA = 0;
+
 	@Autowired
 	private TransaccionInFeignClient transaccionInFeignClient;
 
 	@Autowired
 	private TransaccionOutFeignClient transaccionOutFeignClient;
 
-	// @Autowired
-	// private BitacoraFeignClient bitacoraFeignClient;
+	@Autowired
+	private BitacoraFeignClient bitacoraFeignClient;
 
 	@PostMapping("/transacciones")
 	public ResponseEntity<ResponseModel> solicitudSaldo(@RequestBody TransaccionIn transaccionIn) {
-		transaccionIn.setEstatus(1);
+		transaccionIn.setEstatus(TRANSACCION_NUEVA);
 		transaccionIn.setFecha(new Date());
 
 		ResponseModel response = new ResponseModel();
-
+		
+		Bitacora bitacora = TransaccionUtil.crearBitacora(transaccionIn);
 		try {
 			TransaccionIn transaccion = transaccionInFeignClient.save(transaccionIn);
 			if (transaccion != null) {
@@ -51,8 +59,17 @@ public class ConcentradoraController {
 				transaccionOut.setFolio(folio);
 				transaccionOutFeignClient.save(transaccionOut);
 
+				/** hhm: se guarda bitacora con transaccion de entrada guardada **/
+				bitacora.setFolio(folio);
+				bitacora.setEstatus(BITACORA_TRANSACCION_NUEVA);
+				bitacora.setFechaInicio(new Date());
+				bitacora = bitacoraFeignClient.save(bitacora);
 				return new ResponseEntity<ResponseModel>(response, HttpStatus.OK);
 			} else {
+				/** hhm: se guarda bitacora con transaccion de entrada erronea **/
+				bitacora.setEstatus(BITACORA_TRANSACCION_ERRONEA);
+				bitacora.setFechaActualizacion(new Date());
+				bitacora = bitacoraFeignClient.update(bitacora, bitacora.getId());
 				response.setCodigo("01");
 				response.setMensaje("Ocurrio un error al guardar la transaccion de entrada.");
 				return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);

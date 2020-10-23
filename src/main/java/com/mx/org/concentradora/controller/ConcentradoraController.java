@@ -3,6 +3,7 @@ package com.mx.org.concentradora.controller;
 import java.util.Date;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.hateoas.CollectionModel;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -26,7 +27,7 @@ import com.mx.org.concentradora.util.TransaccionUtil;
 public class ConcentradoraController {
 
 	private Integer TRANSACCION_NUEVA = 1;
-	
+
 	private Integer BITACORA_TRANSACCION_NUEVA = 1;
 	private Integer BITACORA_TRANSACCION_ERRONEA = 0;
 
@@ -45,7 +46,7 @@ public class ConcentradoraController {
 		transaccionIn.setFecha(new Date());
 
 		ResponseModel response = new ResponseModel();
-		
+
 		Bitacora bitacora = TransaccionUtil.crearBitacora(transaccionIn);
 		try {
 			TransaccionIn transaccion = transaccionInFeignClient.save(transaccionIn);
@@ -83,10 +84,56 @@ public class ConcentradoraController {
 
 	@GetMapping("/transacciones/{folio}")
 	public ResponseEntity<TransaccionOut> consultaTransaccionSalida(@PathVariable String folio) {
+		CollectionModel<TransaccionOut> response = transaccionOutFeignClient.findByFolio(folio);
+		if (response != null && !response.getContent().isEmpty()) {
+			TransaccionOut transaccion = response.getContent().iterator().next();
+			return new ResponseEntity<>(transaccion, HttpStatus.OK);
+		}
+		return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
+	}
+
+//	@GetMapping("/transacciones/{folio}")
+//	public ResponseEntity<TransaccionOut> consultaTransaccionSalida(@PathVariable String folio) {
+//		HttpStatus codigo = null;
+//		Optional<TransaccionOut> response = null;
+//		try {
+//			response = transaccionOutFeignClient.findByFolio(folio);
+//			if (response.isPresent()) {
+//				codigo = HttpStatus.OK;
+//			} else {
+//				codigo = HttpStatus.NOT_FOUND;
+//			}
+//		} catch (Exception ex) {
+//			codigo = HttpStatus.INTERNAL_SERVER_ERROR;
+//			return new ResponseEntity<>(null, codigo);
+//		}
+//		return new ResponseEntity<>(response.get(), codigo);
+//	}
+
+//	@GetMapping("/transacciones/{id}")
+//	public ResponseEntity<TransaccionIn> consultaTransaccion(@PathVariable Long id) {
+//		HttpStatus codigo = null;
+//		Optional<TransaccionIn> response = null;
+//		try {
+//			response = transaccionInFeignClient.findById(id);
+//			if (response.isPresent()) {
+//				codigo = HttpStatus.OK;
+//			} else {
+//				codigo = HttpStatus.NOT_FOUND;
+//			}
+//		} catch (Exception ex) {
+//			codigo = HttpStatus.INTERNAL_SERVER_ERROR;
+//			return new ResponseEntity<>(null, codigo);
+//		}
+//		return new ResponseEntity<>(response.get(), codigo);
+//	}
+
+	@GetMapping("/bitacoras/{folio}")
+	public ResponseEntity<Bitacora> consultaBitacora(@PathVariable String folio) {
 		HttpStatus codigo = null;
-		TransaccionOut response = null;
+		Bitacora response = null;
 		try {
-			response = transaccionOutFeignClient.findByFolio(folio);
+			response = bitacoraFeignClient.findByFolio(folio);
 			if (response != null) {
 				codigo = HttpStatus.OK;
 			} else {
@@ -94,45 +141,7 @@ public class ConcentradoraController {
 			}
 		} catch (Exception ex) {
 			codigo = HttpStatus.INTERNAL_SERVER_ERROR;
-			return new ResponseEntity<>(null, codigo);
 		}
 		return new ResponseEntity<>(response, codigo);
 	}
-
-	// @GetMapping("/transacciones/{id}")
-	// public ResponseEntity<TransaccionIn> consultaTransaccion(@PathVariable Long
-	// id) {
-	// HttpStatus codigo = null;
-	// Optional<TransaccionIn> response = null;
-	// try {
-	// response = transaccionInFeignClient.findById(id);
-	// if (response.isPresent()) {
-	// codigo = HttpStatus.OK;
-	// } else {
-	// codigo = HttpStatus.NOT_FOUND;
-	// }
-	// } catch (Exception ex) {
-	// codigo = HttpStatus.INTERNAL_SERVER_ERROR;
-	// return new ResponseEntity<>(null, codigo);
-	// }
-	// return new ResponseEntity<>(response.get(), codigo);
-	// }
-
-	// @GetMapping("/bitacoras/{folio}")
-	// public ResponseEntity<Bitacora> consultaBitacora(@PathVariable String folio)
-	// {
-	// HttpStatus codigo = null;
-	// Bitacora response = null;
-	// try {
-	// response = bitacoraFeignClient.findByFolio(folio);
-	// if (response != null) {
-	// codigo = HttpStatus.OK;
-	// } else {
-	// codigo = HttpStatus.NOT_FOUND;
-	// }
-	// } catch (Exception ex) {
-	// codigo = HttpStatus.INTERNAL_SERVER_ERROR;
-	// }
-	// return new ResponseEntity<>(response, codigo);
-	// }
 }

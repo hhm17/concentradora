@@ -1,6 +1,7 @@
 package com.mx.org.concentradora.client;
 
 import org.springframework.cloud.openfeign.FeignClient;
+import org.springframework.hateoas.CollectionModel;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -14,7 +15,7 @@ import com.mx.org.concentradora.model.TransaccionOut;
 public interface TransaccionOutFeignClient {
 
 	@GetMapping("/transacciones-salida/search/buscar-folio")
-	public TransaccionOut findByFolio(@RequestParam String folio);
+	public CollectionModel<TransaccionOut> findByFolio(@RequestParam String folio);
 
 	@PostMapping("/transacciones-salida/")
 	public TransaccionOut save(@RequestBody TransaccionOut transaccion);

@@ -15,11 +15,11 @@ import com.mx.org.concentradora.model.TransaccionOut;
 public interface TransaccionOutFeignClient {
 
 	@GetMapping("/transacciones-salida/search/buscar-folio")
-	public CollectionModel<TransaccionOut> findByFolio(@RequestParam String folio);
+	public CollectionModel<TransaccionOut> findByFolio(@RequestParam(value = "folio") String folio);
 
 	@PostMapping("/transacciones-salida/")
 	public TransaccionOut save(@RequestBody TransaccionOut transaccion);
 
 	@PutMapping("/transacciones-salida/{id}")
-	public TransaccionOut update(@RequestBody TransaccionOut transaccion, @PathVariable Long id);
+	public TransaccionOut update(@RequestBody TransaccionOut transaccion, @PathVariable(value = "id") Long id);
 }

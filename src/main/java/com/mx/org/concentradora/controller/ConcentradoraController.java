@@ -128,20 +128,20 @@ public class ConcentradoraController {
 //		return new ResponseEntity<>(response.get(), codigo);
 //	}
 
-	@GetMapping("/bitacoras/{folio}")
-	public ResponseEntity<Bitacora> consultaBitacora(@PathVariable String folio) {
-		HttpStatus codigo = null;
-		Bitacora response = null;
-		try {
-			response = bitacoraFeignClient.findByFolio(folio);
-			if (response != null) {
-				codigo = HttpStatus.OK;
-			} else {
-				codigo = HttpStatus.NOT_FOUND;
-			}
-		} catch (Exception ex) {
-			codigo = HttpStatus.INTERNAL_SERVER_ERROR;
-		}
-		return new ResponseEntity<>(response, codigo);
-	}
+//	@GetMapping("/bitacoras/{folio}")
+//	public ResponseEntity<Bitacora> consultaBitacora(@PathVariable String folio) {
+//		HttpStatus codigo = null;
+//		Bitacora response = null;
+//		try {
+//			response = bitacoraFeignClient.findByFolio(folio);
+//			if (response != null) {
+//				codigo = HttpStatus.OK;
+//			} else {
+//				codigo = HttpStatus.NOT_FOUND;
+//			}
+//		} catch (Exception ex) {
+//			codigo = HttpStatus.INTERNAL_SERVER_ERROR;
+//		}
+//		return new ResponseEntity<>(response, codigo);
+//	}
 }

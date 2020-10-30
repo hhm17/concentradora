@@ -57,6 +57,11 @@ public class TransaccionUtil {
 		bitacora.setTclave(transaccionEntrada.getTclave());
 		bitacora.setUserId(transaccionEntrada.getUserId());
 		bitacora.setFolio(String.valueOf(transaccionEntrada.getId()));
+		String accion = "01";
+		if (transaccionEntrada.getProducto() != null && !transaccionEntrada.getProducto().isEmpty()) {
+			accion = "21";
+		}
+		bitacora.setAccion(accion);
 		return bitacora;
 	}
 

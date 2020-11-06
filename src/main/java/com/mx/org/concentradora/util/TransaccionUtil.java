@@ -62,6 +62,7 @@ public class TransaccionUtil {
 			accion = "21";
 		}
 		bitacora.setAccion(accion);
+		bitacora.setIdLog(transaccionEntrada.getIdLog());
 		return bitacora;
 	}
 

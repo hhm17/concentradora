@@ -14,9 +14,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.mx.org.concentradora.client.BitacoraFeignClient;
+import com.mx.org.concentradora.client.LogFeignClient;
 import com.mx.org.concentradora.client.TransaccionInFeignClient;
 import com.mx.org.concentradora.client.TransaccionOutFeignClient;
 import com.mx.org.concentradora.model.Bitacora;
+import com.mx.org.concentradora.model.Log;
 import com.mx.org.concentradora.model.ResponseModel;
 import com.mx.org.concentradora.model.TransaccionIn;
 import com.mx.org.concentradora.model.TransaccionOut;
@@ -39,6 +41,9 @@ public class ConcentradoraController {
 
 	@Autowired
 	private BitacoraFeignClient bitacoraFeignClient;
+
+	@Autowired
+	private LogFeignClient logFeignClient;
 
 	@PostMapping("/transacciones")
 	public ResponseEntity<ResponseModel> solicitudSaldo(@RequestBody TransaccionIn transaccionIn) {
@@ -69,13 +74,22 @@ public class ConcentradoraController {
 			} else {
 				/** hhm: se guarda bitacora con transaccion de entrada erronea **/
 				bitacora.setEstatus(BITACORA_TRANSACCION_ERRONEA);
-				bitacora.setFechaActualizacion(new Date());
-				bitacora = bitacoraFeignClient.update(bitacora, bitacora.getId());
+				bitacora.setFechaInicio(new Date());
+				bitacora.setFechaFin(new Date());
+				bitacora.setRespProv("E01");
+				bitacora.setLeyendaTck("Ocurrio un error interno de aplicacion.");
+				bitacora = bitacoraFeignClient.save(bitacora);
 				response.setCodigo("01");
 				response.setMensaje("Ocurrio un error al guardar la transaccion de entrada.");
 				return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
 			}
 		} catch (Exception ex) {
+			bitacora.setEstatus(BITACORA_TRANSACCION_ERRONEA);
+			bitacora.setFechaInicio(new Date());
+			bitacora.setFechaFin(new Date());
+			bitacora.setRespProv("E01");
+			bitacora.setLeyendaTck("Ocurrio un error interno de aplicacion.");
+			bitacora = bitacoraFeignClient.save(bitacora);
 			response.setCodigo("01");
 			response.setMensaje("Ocurrio un error al guardar la transaccion de entrada.");
 			return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
@@ -92,56 +106,13 @@ public class ConcentradoraController {
 		return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
 	}
 
-//	@GetMapping("/transacciones/{folio}")
-//	public ResponseEntity<TransaccionOut> consultaTransaccionSalida(@PathVariable String folio) {
-//		HttpStatus codigo = null;
-//		Optional<TransaccionOut> response = null;
-//		try {
-//			response = transaccionOutFeignClient.findByFolio(folio);
-//			if (response.isPresent()) {
-//				codigo = HttpStatus.OK;
-//			} else {
-//				codigo = HttpStatus.NOT_FOUND;
-//			}
-//		} catch (Exception ex) {
-//			codigo = HttpStatus.INTERNAL_SERVER_ERROR;
-//			return new ResponseEntity<>(null, codigo);
-//		}
-//		return new ResponseEntity<>(response.get(), codigo);
-//	}
-
-//	@GetMapping("/transacciones/{id}")
-//	public ResponseEntity<TransaccionIn> consultaTransaccion(@PathVariable Long id) {
-//		HttpStatus codigo = null;
-//		Optional<TransaccionIn> response = null;
-//		try {
-//			response = transaccionInFeignClient.findById(id);
-//			if (response.isPresent()) {
-//				codigo = HttpStatus.OK;
-//			} else {
-//				codigo = HttpStatus.NOT_FOUND;
-//			}
-//		} catch (Exception ex) {
-//			codigo = HttpStatus.INTERNAL_SERVER_ERROR;
-//			return new ResponseEntity<>(null, codigo);
-//		}
-//		return new ResponseEntity<>(response.get(), codigo);
-//	}
-
-//	@GetMapping("/bitacoras/{folio}")
-//	public ResponseEntity<Bitacora> consultaBitacora(@PathVariable String folio) {
-//		HttpStatus codigo = null;
-//		Bitacora response = null;
-//		try {
-//			response = bitacoraFeignClient.findByFolio(folio);
-//			if (response != null) {
-//				codigo = HttpStatus.OK;
-//			} else {
-//				codigo = HttpStatus.NOT_FOUND;
-//			}
-//		} catch (Exception ex) {
-//			codigo = HttpStatus.INTERNAL_SERVER_ERROR;
-//		}
-//		return new ResponseEntity<>(response, codigo);
-//	}
+	@PostMapping("/logs")
+	public ResponseEntity<Log> registrarLog(@RequestBody Log log) {
+		try {
+			log = logFeignClient.save(log);
+			return new ResponseEntity<>(log, HttpStatus.OK);
+		} catch (Exception ex) {
+			return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+	}
 }

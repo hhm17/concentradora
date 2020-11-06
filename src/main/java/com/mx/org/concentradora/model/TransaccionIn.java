@@ -20,6 +20,7 @@ public class TransaccionIn {
 	private String referencia;
 	private String folio;
 	private String producto;
+	private int idLog;
 
 	public TransaccionIn() {
 
@@ -172,5 +173,13 @@ public class TransaccionIn {
 
 	public void setProducto(String producto) {
 		this.producto = producto;
+	}
+
+	public int getIdLog() {
+		return idLog;
+	}
+
+	public void setIdLog(int idLog) {
+		this.idLog = idLog;
 	}
 }

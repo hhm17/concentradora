@@ -77,6 +77,7 @@ public class ConcentradoraController {
 				bitacora.setFechaInicio(new Date());
 				bitacora.setFechaFin(new Date());
 				bitacora.setRespProv("E01");
+				bitacora.setFolio("0");
 				bitacora.setLeyendaTck("Ocurrio un error interno de aplicacion.");
 				bitacora = bitacoraFeignClient.save(bitacora);
 				response.setCodigo("01");
@@ -88,6 +89,7 @@ public class ConcentradoraController {
 			bitacora.setFechaInicio(new Date());
 			bitacora.setFechaFin(new Date());
 			bitacora.setRespProv("E01");
+			bitacora.setFolio("0");
 			bitacora.setLeyendaTck("Ocurrio un error interno de aplicacion.");
 			bitacora = bitacoraFeignClient.save(bitacora);
 			response.setCodigo("01");
